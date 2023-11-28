@@ -45,54 +45,21 @@ export const Home = () => {
         setIsSorted(true);
     }
 
-    const [isSearhing, setIsSearching] = useState(false)
-    const [searchedTodos, setSearchedTodos] = useState([])
-    const searchByName = (value) => {
-        if (value.length === 0){
-            setIsSearching(false);
-            return
-        }
-        setIsSearching(true);
-        setSearchedTodos(todos.filter((todo) => todo.text.startsWith(value)))
-    }
 
     const exportCSV = () => {
-        const [txt, setTxt] = useState('')
-        for (const todo in todos){
-            setTxt(txt + todo + '\n');
+        let txt = ''
+        for (const todo of todos){
+            txt = txt + todo.text + '\n'
         }
-          const [a, setA] = useState(document.createElement("a"));
-          let file = new Blob([txt], {type: 'application/json'});
+          const a = document.createElement("a");
+          let file = new Blob([txt], {type: 'application/text'});
           a.href = URL.createObjectURL(file);
           a.download = "example.txt";
           a.click();
     }
 
-    const addItems = (todos_list) =>
-    {
-        return todos_list.map((todo) => (
-                    <ListItem
-                        key={todo.id}
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        borderBottom="1px solid gray"
-                        py="8px"
-                    >
-                        <Text>{todo.text}</Text>
-                        <Button
-                            onClick={() => removeTodoHandler(todo.id)}
-                            background="red.500"
-                            color="white"
-                            _hover={{
-                                background: 'red.600',
-                            }}
-                        >
-                            Delete
-                        </Button>
-                    </ListItem>
-                ))
-    }
+    const [searchText, setSearchText] = useState('')
+
 
     return (
         <Flex
@@ -130,16 +97,39 @@ export const Home = () => {
                     <Input
                         display="flex"
                         placeholder="Search by name"
-                        onChange={(e) => searchByName(e.target.value)}
-                    >
-                    </Input>
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                    />
                     <Button
                         onClick={() => exportCSV()}
                     >
                         Export File
                     </Button>
                 </Flex>
-                {isSearhing ? addItems(searchedTodos) : addItems(todos)}
+                {
+                    todos.filter((todo) => todo.text.slice(0, searchText.length) === searchText).map((todo) => (
+                    <ListItem
+                        key={todo.id}
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        borderBottom="1px solid gray"
+                        py="8px"
+                    >
+                        <Text>{todo.text}</Text>
+                        <Button
+                            onClick={() => removeTodoHandler(todo.id)}
+                            background="red.500"
+                            color="white"
+                            _hover={{
+                                background: 'red.600',
+                            }}
+                        >
+                            Delete
+                        </Button>
+                    </ListItem>
+                ))
+                }
             </List>
             <chakra.form
                 onSubmit={(e) => {
